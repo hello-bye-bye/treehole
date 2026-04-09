@@ -2,8 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💙 共情树洞 · 心声共鸣</title>
+    <title>💙 共情树洞</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{background:linear-gradient(145deg,#dceeff,#b2d8fa);font-family:system-ui;padding:20px;min-height:100vh;display:flex;justify-content:center;align-items:center}
@@ -17,7 +16,6 @@
         .dot{width:10px;height:10px;background:#1fbf6e;border-radius:50%;animation:pulse 1.8s infinite}
         .messages-area{background:#f5fbfe;height:500px;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:18px}
         .message-card{background:white;border-radius:32px;padding:18px 20px;box-shadow:0 5px 14px rgba(40,60,90,0.08);border:1px solid rgba(112,176,210,0.3)}
-        .message-card:hover{transform:translateY(-3px);border-color:#6bc6ff}
         .message-meta{display:flex;justify-content:space-between;font-size:0.7rem;color:#3f7e9c;margin-bottom:10px}
         .anonymous-name{background:#e1f0fe;padding:4px 14px;border-radius:40px}
         .message-text{font-size:1rem;line-height:1.48;color:#1d2e3f;margin:12px 0 14px 0;white-space:pre-wrap}
@@ -111,7 +109,7 @@
     let userName=localStorage.getItem('treehole_name');
     if(!userName){
         const names=['💧冰露','❄️雪狐','🌊潮汐','🔷蓝鸢','🍃清岚','🌙银月','💎星尘'];
-        userName=names[Math.floor(Math.random()names.length)]+Math.floor(Math.random()*999);
+        userName=names[Math.floor(Math.random()*names.length)]+Math.floor(Math.random()*999);
         localStorage.setItem('treehole_name',userName);
     }
     
