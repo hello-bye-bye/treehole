@@ -64,23 +64,137 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL='https://anocweisburxwajijubg.supabase.co';
-const SUPABASE_KEY='sb_publishable_6ow5oP9QjwBg7d1haNFm7Q_POntmHMC';
-const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const BAD_WORDS=['傻逼','蠢货','脑残','弱智','白痴','废物','去死','操你','尼玛','贱人','sb','fuck','shit','asshole','bitch','nmsl','cnm','tmd'];
-function containsBadWord(t){if(!t)return false;let l=t.toLowerCase();return BAD_WORDS.some(w=>l.includes(w.toLowerCase()));}
-let lang='zh';
-const texts={zh:{title:'共情树洞 · 心声共鸣',subhead:'聆听彼此 · 身同感受 | 每一份心事都值得回应',live:'实时共情 · 世界树洞',modalTitle:'🌱 说出你的心事',send:'💬 匿名倾诉',cancel:'取消',empathy:'身同感受',placeholder:'写下你的烦恼、秘密或鼓励... (最长400字)'},en:{title:'Empathy Treehole · Resonant Voices',subhead:'Listen & Relate | Every feeling matters',live:'Live Empathy · Global Heartbeat',modalTitle:'🌱 Whisper your heart',send:'💬 Anonymous confide',cancel:'Cancel',empathy:'I feel you',placeholder:'Write your troubles, secrets, or encouragement... (Max 400 chars)'}};
-function updateLang(){let t=texts[lang];document.getElementById('titleText').innerText=t.title;document.getElementById('subheadText').innerText=t.subhead;document.getElementById('liveText').innerText=t.live;document.getElementById('modalTitle').innerText=t.modalTitle;document.getElementById('modalSendBtn').innerText=t.send;document.getElementById('modalCancelBtn').innerText=t.cancel;document.getElementById('modalMessageInput').placeholder=t.placeholder;document.querySelectorAll('.empathy-text').forEach(el=>el.innerText=t.empathy);document.getElementById('langToggleBtn').innerText=lang==='zh'?'🌐 English':'🌐 中文';}
-document.getElementById('langToggleBtn').onclick=()=>{lang=lang==='zh'?'en':'zh';updateLang();};
-let userName=localStorage.getItem('treehole_name');if(!userName){const names=['💧 冰露','❄️ 雪狐','🌊 潮汐','🔷 蓝鸢','🍃 清岚','🪶 羽落','🌙 银月','💎 星尘'];userName=names[Math.floor(Math.random()*names.length)]+Math.floor(Math.random()*999);localStorage.setItem('treehole_name',userName);}
-async function loadMessages(){const{data,error}=await supabase.from('messages').select('*').order('created_at',{ascending:false}).limit(200);if(error){console.error(error);return;}const container=document.getElementById('messageList');if(!data||data.length===0){container.innerHTML='<div style="text-align:center;padding:40px;">✨ 风铃摇曳，等待第一个心声 ✨</div>';return;}let t=texts[lang];container.innerHTML=data.map(msg=>`<div class="message-card" data-id="${msg.id}"><div class="message-meta"><span class="anonymous-name">${escapeHtml(msg.anonymous_name)}</span><span>${formatTime(msg.created_at)}</span></div><div class="message-text">${escapeHtml(msg.content)}</div><div class="empathy-section"><button class="empathy-btn" data-id="${msg.id}" data-count="${msg.empathy_count||0}"><span>💙</span> <span class="empathy-text">${t.empathy}</span><span class="empathy-count">${msg.empathy_count||0}</span></button></div></div>`).join('');document.querySelectorAll('.empathy-btn').forEach(btn=>{btn.onclick=async()=>{let id=btn.dataset.id;let cnt=parseInt(btn.dataset.count);await supabase.from('messages').update({empathy_count:cnt+1}).eq('id',id);btn.dataset.count=cnt+1;btn.querySelector('.empathy-count').innerText=cnt+1;};});}
-async function sendMessage(content){if(!content.trim()){alert('请写点心事~');return false;}if(content.length>400){alert('最多400字~');return false;}if(containsBadWord(content)){alert('🕊️ 请用善意传递温暖');return false;}const{error}=await supabase.from('messages').insert([{content:content.trim(),anonymous_name:userName,created_at:new Date().toISOString(),empathy_count:0}]);if(error){alert('发送失败:'+error.message);return false;}return true;}
-function subscribe(){supabase.channel('messages').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},()=>loadMessages()).on('postgres_changes',{event:'UPDATE',schema:'public',table:'messages'},()=>loadMessages()).subscribe();}
-function formatTime(iso){if(!iso)return'刚刚';let d=new Date(iso),n=new Date(),diff=Math.floor((n-d)/60000);if(diff<1)return'几秒前';if(diff<60)return diff+'分钟前';if(diff<1440)return Math.floor(diff/60)+'小时前';return Math.floor(diff/1440)+'天前';}
-function escapeHtml(s){if(!s)return'';return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
-const modal=document.getElementById('messageModal');document.getElementById('openModalBtn').onclick=()=>{modal.style.display='flex';document.getElementById('modalMessageInput').value='';};document.getElementById('modalCancelBtn').onclick=()=>modal.style.display='none';document.getElementById('modalSendBtn').onclick=async()=>{let input=document.getElementById('modalMessageInput');if(await sendMessage(input.value)){modal.style.display='none';input.value='';loadMessages();}};window.onclick=(e)=>{if(e.target===modal)modal.style.display='none';};
-loadMessages();subscribe();updateLang();
+// 调试版本 - 会弹窗提示错误
+alert('脚本开始执行');
+
+const SUPABASE_URL = 'https://anocweisburxwajijubg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_6ow5oP9QjwBg7d1haNFm7Q_POntmHMC';
+
+alert('Supabase 配置完成，开始创建客户端');
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+alert('Supabase 客户端创建成功');
+
+// 敏感词
+const BAD_WORDS = ['傻逼', '蠢货', '脑残', '弱智', '白痴', '废物', '去死', '操你', '尼玛', '贱人', 'sb', 'fuck', 'shit'];
+function containsBadWord(t) { if (!t) return false; let l = t.toLowerCase(); return BAD_WORDS.some(w => l.includes(w.toLowerCase())); }
+
+// 语言
+let lang = 'zh';
+const texts = {
+    zh: { title: '共情树洞 · 心声共鸣', subhead: '聆听彼此 · 身同感受 | 每一份心事都值得回应', live: '实时共情 · 世界树洞', modalTitle: '🌱 说出你的心事', send: '💬 匿名倾诉', cancel: '取消', empathy: '身同感受', placeholder: '写下你的烦恼、秘密或鼓励... (最长400字)' },
+    en: { title: 'Empathy Treehole · Resonant Voices', subhead: 'Listen & Relate | Every feeling matters', live: 'Live Empathy · Global Heartbeat', modalTitle: '🌱 Whisper your heart', send: '💬 Anonymous confide', cancel: 'Cancel', empathy: 'I feel you', placeholder: 'Write your troubles, secrets, or encouragement... (Max 400 chars)' }
+};
+function updateLang() {
+    let t = texts[lang];
+    document.getElementById('titleText').innerText = t.title;
+    document.getElementById('subheadText').innerText = t.subhead;
+    document.getElementById('liveText').innerText = t.live;
+    document.getElementById('modalTitle').innerText = t.modalTitle;
+    document.getElementById('modalSendBtn').innerText = t.send;
+    document.getElementById('modalCancelBtn').innerText = t.cancel;
+    document.getElementById('modalMessageInput').placeholder = t.placeholder;
+    let btns = document.querySelectorAll('.empathy-text');
+    for(let i=0; i<btns.length; i++) btns[i].innerText = t.empathy;
+    document.getElementById('langToggleBtn').innerText = lang === 'zh' ? '🌐 English' : '🌐 中文';
+}
+document.getElementById('langToggleBtn').onclick = function() {
+    lang = lang === 'zh' ? 'en' : 'zh';
+    updateLang();
+};
+
+// 匿名名
+let userName = localStorage.getItem('treehole_name');
+if (!userName) {
+    const names = ['💧 冰露', '❄️ 雪狐', '🌊 潮汐', '🔷 蓝鸢', '🍃 清岚', '🪶 羽落', '🌙 银月', '💎 星尘'];
+    userName = names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 999);
+    localStorage.setItem('treehole_name', userName);
+}
+alert('用户名: ' + userName);
+
+async function loadMessages() {
+    alert('正在加载留言...');
+    const { data, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false }).limit(200);
+    if (error) {
+        alert('加载失败: ' + error.message);
+        console.error(error);
+        return;
+    }
+    alert('加载成功，共 ' + (data ? data.length : 0) + ' 条留言');
+    const container = document.getElementById('messageList');
+    if (!data || data.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;">✨ 风铃摇曳，等待第一个心声 ✨</div>';
+        return;
+    }
+    let t = texts[lang];
+    let html = '';
+    for(let i=0; i<data.length; i++) {
+        let msg = data[i];
+        html += '<div class="message-card" data-id="' + msg.id + '">' +
+            '<div class="message-meta"><span class="anonymous-name">' + escapeHtml(msg.anonymous_name) + '</span><span>' + formatTime(msg.created_at) + '</span></div>' +
+            '<div class="message-text">' + escapeHtml(msg.content) + '</div>' +
+            '<div class="empathy-section"><button class="empathy-btn" data-id="' + msg.id + '" data-count="' + (msg.empathy_count || 0) + '">' +
+            '<span>💙</span> <span class="empathy-text">' + t.empathy + '</span>' +
+            '<span class="empathy-count">' + (msg.empathy_count || 0) + '</span></button></div></div>';
+    }
+    container.innerHTML = html;
+    
+    // 绑定点赞按钮
+    let btns = document.querySelectorAll('.empathy-btn');
+    for(let i=0; i<btns.length; i++) {
+        btns[i].onclick = async function() {
+            let id = this.getAttribute('data-id');
+            let cnt = parseInt(this.getAttribute('data-count'));
+            await supabase.from('messages').update({ empathy_count: cnt + 1 }).eq('id', id);
+            this.setAttribute('data-count', cnt + 1);
+            this.querySelector('.empathy-count').innerText = cnt + 1;
+        };
+    }
+}
+
+async function sendMessage(content) {
+    if (!content.trim()) { alert('请写点心事~'); return false; }
+    if (content.length > 400) { alert('最多400字~'); return false; }
+    if (containsBadWord(content)) { alert('🕊️ 请用善意传递温暖'); return false; }
+    const { error } = await supabase.from('messages').insert([{ content: content.trim(), anonymous_name: userName, created_at: new Date().toISOString(), empathy_count: 0 }]);
+    if (error) { alert('发送失败: ' + error.message); return false; }
+    return true;
+}
+
+function subscribe() {
+    supabase.channel('messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, function() { loadMessages(); }).on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, function() { loadMessages(); }).subscribe();
+}
+
+function formatTime(iso) {
+    if (!iso) return '刚刚';
+    let d = new Date(iso), n = new Date(), diff = Math.floor((n - d) / 60000);
+    if (diff < 1) return '几秒前';
+    if (diff < 60) return diff + '分钟前';
+    if (diff < 1440) return Math.floor(diff / 60) + '小时前';
+    return Math.floor(diff / 1440) + '天前';
+}
+function escapeHtml(s) { if (!s) return ''; return s.replace(/[&<>]/g, function(m) { if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }); }
+
+// 模态框
+var modal = document.getElementById('messageModal');
+document.getElementById('openModalBtn').onclick = function() { modal.style.display = 'flex'; document.getElementById('modalMessageInput').value = ''; };
+document.getElementById('modalCancelBtn').onclick = function() { modal.style.display = 'none'; };
+document.getElementById('modalSendBtn').onclick = async function() {
+    var input = document.getElementById('modalMessageInput');
+    if (await sendMessage(input.value)) {
+        modal.style.display = 'none';
+        input.value = '';
+        loadMessages();
+    }
+};
+window.onclick = function(e) { if (e.target === modal) modal.style.display = 'none'; };
+
+alert('开始加载留言');
+loadMessages();
+subscribe();
+updateLang();
+alert('初始化完成');
 </script>
 </body>
 </html>
