@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>💙 共情树洞 · 心声共鸣</title>
+    <title>💙 共情樹洞 · 心聲共鳴</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{background:linear-gradient(145deg,#dceeff,#b2d8fa);font-family:system-ui;padding:20px;min-height:100vh;display:flex;justify-content:center;align-items:center}
@@ -21,7 +21,8 @@
         .anonymous-name{background:#e1f0fe;padding:4px 14px;border-radius:40px}
         .message-text{font-size:1rem;line-height:1.48;color:#1d2e3f;margin:12px 0 14px 0;white-space:pre-wrap}
         .action-buttons{display:flex;justify-content:flex-end;gap:12px;margin-top:8px;border-top:1px solid #e2eff9;padding-top:12px}
-        .empathy-btn,.reply-btn{background:linear-gradient(115deg,#eef6ff,#fff);border:1px solid #9ac2db;padding:6px 16px;border-radius:60px;font-size:0.75rem;font-weight:600;color:#2a6b8f;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+        .empathy-btn,.reply-btn{background:linear-gradient(115deg,#eef6ff,#fff);border:1px solid #9ac2db;padding:6px 16px;border-radius:60px;font-size:0.75rem;font-weight:600;color:#2a6b8f;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:0.15s}
+        .empathy-btn:disabled{opacity:0.5;cursor:not-allowed;background:#f0f0f0}
         .replies-area{margin-top:12px;padding-left:16px;border-left:3px solid #9ac2db}
         .reply-card{background:#f8fafc;border-radius:20px;padding:10px 14px;margin-top:8px;font-size:0.85rem}
         .reply-meta{display:flex;justify-content:space-between;font-size:0.65rem;color:#6b8faa;margin-bottom:5px}
@@ -37,45 +38,44 @@
         .footer-sig{text-align:center;padding:14px;font-size:0.7rem;color:#4c799b;background:#e1eff9}
         @keyframes pulse{0%{opacity:0.5;transform:scale(0.9)}100%{opacity:1;transform:scale(1.2)}}
         .live-badge{background:#2c7a5e;padding:4px 14px;border-radius:40px;color:white;font-weight:bold;font-size:0.75rem}
-        .refresh-indicator{font-size:11px;color:#6b8faa;margin-left:8px}
     </style>
 </head>
 <body>
 <div class="treehole">
     <div class="tree-header">
         <div class="title-wrapper">
-            <h1><span>💙🌿</span> <span id="titleText">共情树洞 · 心声共鸣</span> <span>🕊️</span></h1>
+            <h1><span>💙🌿</span> <span id="titleText">共情樹洞 · 心聲共鳴</span> <span>🕊️</span></h1>
             <button class="lang-switch" id="langToggleBtn">🌐 English</button>
         </div>
-        <div class="subhead" id="subheadText">聆听彼此 · 身同感受 | 每一份心事都值得回应</div>
+        <div class="subhead" id="subheadText">聆聽彼此 · 身同感受 | 每一份心事都值得回應</div>
     </div>
     <div class="status-bar">
-        <div class="live-tag"><span class="dot"></span><span id="liveText">实时共情 · 世界树洞</span></div>
-        <div class="live-badge" id="realtimeStatus">🟢 自动刷新中 (3秒)</div>
+        <div class="live-tag"><span class="dot"></span><span id="liveText">實時共情 · 世界樹洞</span></div>
+        <div class="live-badge" id="realtimeStatus">🟢 自動刷新中 (3秒)</div>
     </div>
-    <div class="messages-area" id="messageList"><div style="text-align:center;padding:40px;">✨ 加载中... ✨</div></div>
+    <div class="messages-area" id="messageList"><div style="text-align:center;padding:40px;">✨ 加載中... ✨</div></div>
     <div class="fab-wrapper"><button class="floating-btn" id="openModalBtn">+</button></div>
     <div id="messageModal" class="modal">
         <div class="modal-card">
-            <h3 id="modalTitle">🌱 说出你的心事</h3>
-            <textarea id="modalMessageInput" rows="3" placeholder="写下你的烦恼..."></textarea>
+            <h3 id="modalTitle">🌱 說出你的心事</h3>
+            <textarea id="modalMessageInput" rows="3" placeholder="寫下你的煩惱..."></textarea>
             <div class="modal-actions">
-                <button class="submit-msg" id="modalSendBtn">💬 匿名倾诉</button>
+                <button class="submit-msg" id="modalSendBtn">💬 匿名傾訴</button>
                 <button class="cancel-msg" id="modalCancelBtn">取消</button>
             </div>
         </div>
     </div>
     <div id="replyModal" class="modal">
         <div class="modal-card">
-            <h3 id="replyModalTitle">💬 回复这条心事</h3>
-            <textarea id="replyInput" rows="3" placeholder="写下你的回应..."></textarea>
+            <h3 id="replyModalTitle">💬 回覆這條心事</h3>
+            <textarea id="replyInput" rows="3" placeholder="寫下你的回應..."></textarea>
             <div class="modal-actions">
-                <button class="submit-msg" id="replySendBtn">发送回复</button>
+                <button class="submit-msg" id="replySendBtn">發送回覆</button>
                 <button class="cancel-msg" id="replyCancelBtn">取消</button>
             </div>
         </div>
     </div>
-    <div class="footer-sig">Made with 💙 by respond.dfc.team · 冷调共鸣 · 匿名守护</div>
+    <div class="footer-sig">Made with 💙 by respond.dfc.team · 冷調共鳴 · 匿名守護</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -87,10 +87,30 @@
     const BAD_WORDS = ['傻逼','蠢货','脑残','弱智','白痴','废物','去死','操你','尼玛','贱人','sb','fuck','shit'];
     function hasBadWord(t){if(!t)return false;let l=t.toLowerCase();return BAD_WORDS.some(w=>l.includes(w));}
     
-    let lang = 'zh';
+    // 三语：简体、繁体、英文
+    let lang = 'zh-tw';  // 默认繁体
     const txt = {
-        zh:{title:'共情树洞 · 心声共鸣',subhead:'聆听彼此 · 身同感受',live:'实时共情 · 世界树洞',modalTitle:'🌱 说出你的心事',send:'💬 匿名倾诉',cancel:'取消',empathy:'身同感受',reply:'💬 回复',replyTitle:'💬 回复这条心事',replySend:'发送回复',placeholder:'写下你的烦恼...',empty:'✨ 风铃摇曳，等待第一个心声 ✨',replyPlaceholder:'写下你的回应...'},
-        en:{title:'Empathy Treehole',subhead:'Listen & Relate',live:'Live Empathy',modalTitle:'🌱 Whisper',send:'💬 Confide',cancel:'Cancel',empathy:'I feel you',reply:'💬 Reply',replyTitle:'💬 Reply to this',replySend:'Send Reply',placeholder:'Write your troubles...',empty:'✨ Waiting for first whisper ✨',replyPlaceholder:'Write your response...'}
+        'zh-cn': {
+            title:'共情树洞 · 心声共鸣', subhead:'聆听彼此 · 身同感受 | 每一份心事都值得回应',
+            live:'实时共情 · 世界树洞', modalTitle:'🌱 说出你的心事', send:'💬 匿名倾诉',
+            cancel:'取消', empathy:'身同感受', reply:'💬 回复', replyTitle:'💬 回复这条心事',
+            replySend:'发送回复', placeholder:'写下你的烦恼...', empty:'✨ 风铃摇曳，等待第一个心声 ✨',
+            replyPlaceholder:'写下你的回应...', alreadyLiked:'你已经感受过这份心事了'
+        },
+        'zh-tw': {
+            title:'共情樹洞 · 心聲共鳴', subhead:'聆聽彼此 · 身同感受 | 每一份心事都值得回應',
+            live:'實時共情 · 世界樹洞', modalTitle:'🌱 說出你的心事', send:'💬 匿名傾訴',
+            cancel:'取消', empathy:'身同感受', reply:'💬 回覆', replyTitle:'💬 回覆這條心事',
+            replySend:'發送回覆', placeholder:'寫下你的煩惱...', empty:'✨ 風鈴搖曳，等待第一個心聲 ✨',
+            replyPlaceholder:'寫下你的回應...', alreadyLiked:'你已經感受過這份心事了'
+        },
+        en: {
+            title:'Empathy Treehole · Resonant Voices', subhead:'Listen & Relate | Every feeling matters',
+            live:'Live Empathy · Global Treehole', modalTitle:'🌱 Whisper your heart', send:'💬 Anonymous Confide',
+            cancel:'Cancel', empathy:'I feel you', reply:'💬 Reply', replyTitle:'💬 Reply to this',
+            replySend:'Send Reply', placeholder:'Write your troubles...', empty:'✨ Waiting for first whisper ✨',
+            replyPlaceholder:'Write your response...', alreadyLiked:'You have already felt this'
+        }
     };
     
     function updateLang(){
@@ -105,25 +125,32 @@
         document.getElementById('replyModalTitle').innerText=t.replyTitle;
         document.getElementById('replySendBtn').innerText=t.replySend;
         document.getElementById('replyInput').placeholder=t.replyPlaceholder;
-        document.getElementById('langToggleBtn').innerText=lang==='zh'?'🌐 English':'🌐 中文';
+        let btnText = lang==='zh-cn'?'繁體中文':(lang==='zh-tw'?'简体中文':'中文');
+        document.getElementById('langToggleBtn').innerText=lang==='en'?'中文':(lang==='zh-cn'?'繁體中文':'English');
         loadMessages();
     }
     
     let userName=localStorage.getItem('treehole_name');
     if(!userName){
-        const names=['💧冰露','❄️雪狐','🌊潮汐','🔷蓝鸢','🍃清岚','🌙银月','💎星尘'];
+        const names=['💧冰露','❄️雪狐','🌊潮汐','🔷藍鳶','🍃清嵐','🌙銀月','💎星塵'];
         userName=names[Math.floor(Math.random()*names.length)]+Math.floor(Math.random()*999);
         localStorage.setItem('treehole_name',userName);
     }
     
     let currentReplyId=null;
     let lastMessageCount = 0;
+    // 记录当前用户点赞过的消息ID
+    let likedMessages = JSON.parse(localStorage.getItem('liked_messages') || '[]');
+    
+    function saveLikedMessages(){
+        localStorage.setItem('liked_messages', JSON.stringify(likedMessages));
+    }
     
     async function loadMessages(){
         const{data:messages,error:msgErr}=await supabase.from('messages').select('*').order('created_at',{ascending:false}).limit(200);
-        if(msgErr){console.error('留言加载错误:',msgErr);document.getElementById('realtimeStatus').innerHTML='🔴 连接异常';return;}
+        if(msgErr){console.error('留言加載錯誤:',msgErr);document.getElementById('realtimeStatus').innerHTML='🔴 連接異常';return;}
         const{data:replies,error:repErr}=await supabase.from('replies').select('*').order('created_at',{ascending:true});
-        if(repErr)console.error('回复加载错误:',repErr);
+        if(repErr)console.error('回覆加載錯誤:',repErr);
         
         const replyMap=new Map();
         if(replies) for(let r of replies){if(!replyMap.has(r.message_id))replyMap.set(r.message_id,[]);replyMap.get(r.message_id).push(r);}
@@ -139,46 +166,73 @@
                 for(let r of repList) repliesHtml+=`<div class="reply-card"><div class="reply-meta"><span>${escapeHtml(r.anonymous_name)}</span><span>${timeAgo(r.created_at)}</span></div><div class="reply-text">${escapeHtml(r.content)}</div></div>`;
                 repliesHtml+='</div>';
             }
-            html+=`<div class="message-card"><div class="message-meta"><span class="anonymous-name">${escapeHtml(m.anonymous_name)}</span><span>${timeAgo(m.created_at)}</span></div><div class="message-text">${escapeHtml(m.content)}</div><div class="action-buttons"><button class="empathy-btn" data-id="${m.id}" data-count="${m.empathy_count||0}"><span>💙</span> <span>${txt[lang].empathy}</span> <span class="empathy-count">${m.empathy_count||0}</span></button><button class="reply-btn" data-id="${m.id}"><span>💬</span> <span>${txt[lang].reply}</span></button></div>${repliesHtml}</div>`;
+            const hasLiked = likedMessages.includes(m.id);
+            const disabledAttr = hasLiked ? 'disabled' : '';
+            html+=`<div class="message-card"><div class="message-meta"><span class="anonymous-name">${escapeHtml(m.anonymous_name)}</span><span>${timeAgo(m.created_at)}</span></div><div class="message-text">${escapeHtml(m.content)}</div><div class="action-buttons"><button class="empathy-btn" data-id="${m.id}" data-count="${m.empathy_count||0}" ${disabledAttr}><span>💙</span> <span>${txt[lang].empathy}</span> <span class="empathy-count">${m.empathy_count||0}</span></button><button class="reply-btn" data-id="${m.id}"><span>💬</span> <span>${txt[lang].reply}</span></button></div>${repliesHtml}</div>`;
         }
         
-        // 检查是否有新消息
         if(messages.length !== lastMessageCount && lastMessageCount !== 0){
             const statusDiv = document.getElementById('realtimeStatus');
             statusDiv.innerHTML = '🟢 有新消息！';
-            setTimeout(() => { if(statusDiv) statusDiv.innerHTML = '🟢 自动刷新中 (3秒)'; }, 2000);
+            setTimeout(() => { if(statusDiv) statusDiv.innerHTML = '🟢 自動刷新中 (3秒)'; }, 2000);
         }
         lastMessageCount = messages.length;
         
         container.innerHTML=html;
-        document.querySelectorAll('.empathy-btn').forEach(btn=>{btn.onclick=async()=>{let id=btn.dataset.id,cnt=parseInt(btn.dataset.count);await supabase.from('messages').update({empathy_count:cnt+1}).eq('id',id);btn.dataset.count=cnt+1;btn.querySelector('.empathy-count').innerText=cnt+1;};});
+        
+        // 绑定点赞事件（检查是否已点赞）
+        document.querySelectorAll('.empathy-btn').forEach(btn=>{
+            const msgId = parseInt(btn.dataset.id);
+            const hasLiked = likedMessages.includes(msgId);
+            if(hasLiked){
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            }
+            btn.onclick=async()=>{
+                if(hasLiked){
+                    alert(txt[lang].alreadyLiked);
+                    return;
+                }
+                const id = btn.dataset.id;
+                const cnt = parseInt(btn.dataset.count);
+                // 乐观更新
+                likedMessages.push(parseInt(id));
+                saveLikedMessages();
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.querySelector('.empathy-count').innerText = cnt + 1;
+                // 发送到服务器
+                await supabase.from('messages').update({empathy_count: cnt + 1}).eq('id', id);
+            };
+        });
+        
         document.querySelectorAll('.reply-btn').forEach(btn=>{btn.onclick=()=>{currentReplyId=btn.dataset.id;document.getElementById('replyInput').value='';document.getElementById('replyModal').style.display='flex';};});
     }
     
     async function sendMessage(content){
-        if(!content.trim()){alert('请写点心事~');return false;}
+        if(!content.trim()){alert('請寫點心事~');return false;}
         if(content.length>400){alert('最多400字~');return false;}
-        if(hasBadWord(content)){alert('🕊️ 请用善意传递温暖');return false;}
+        if(hasBadWord(content)){alert('🕊️ 請用善意傳遞溫暖');return false;}
         let{error}=await supabase.from('messages').insert([{content:content.trim(),anonymous_name:userName,created_at:new Date().toISOString(),empathy_count:0}]);
-        if(error){alert('发送失败:'+error.message);return false;}
+        if(error){alert('發送失敗:'+error.message);return false;}
         return true;
     }
     
     async function sendReply(messageId,content){
-        if(!content.trim()){alert('请写点回应~');return false;}
+        if(!content.trim()){alert('請寫點回應~');return false;}
         if(content.length>300){alert('最多300字~');return false;}
-        if(hasBadWord(content)){alert('🕊️ 请用善意传递温暖');return false;}
+        if(hasBadWord(content)){alert('🕊️ 請用善意傳遞溫暖');return false;}
         let{error}=await supabase.from('replies').insert([{message_id:messageId,content:content.trim(),anonymous_name:userName,created_at:new Date().toISOString()}]);
-        if(error){alert('回复失败:'+error.message);return false;}
+        if(error){alert('回覆失敗:'+error.message);return false;}
         return true;
     }
     
     function timeAgo(iso){
-        if(!iso)return'刚刚';
+        if(!iso)return'剛剛';
         let d=new Date(iso),n=new Date(),diff=Math.floor((n-d)/60000);
-        if(diff<1)return'几秒前';
-        if(diff<60)return diff+'分钟前';
-        if(diff<1440)return Math.floor(diff/60)+'小时前';
+        if(diff<1)return'幾秒前';
+        if(diff<60)return diff+'分鐘前';
+        if(diff<1440)return Math.floor(diff/60)+'小時前';
         return Math.floor(diff/1440)+'天前';
     }
     function escapeHtml(s){if(!s)return'';return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
@@ -190,14 +244,18 @@
     document.getElementById('replyCancelBtn').onclick=()=>{document.getElementById('replyModal').style.display='none';};
     document.getElementById('replySendBtn').onclick=async()=>{let inp=document.getElementById('replyInput');if(await sendReply(currentReplyId,inp.value)){document.getElementById('replyModal').style.display='none';inp.value='';loadMessages();}};
     window.onclick=(e)=>{if(e.target===document.getElementById('messageModal'))document.getElementById('messageModal').style.display='none';if(e.target===document.getElementById('replyModal'))document.getElementById('replyModal').style.display='none';};
-    document.getElementById('langToggleBtn').onclick=()=>{lang=lang==='zh'?'en':'zh';updateLang();};
     
-    // 启动：加载消息 + 每3秒自动刷新
+    // 语言切换：简体 -> 繁体 -> 英文 -> 简体
+    document.getElementById('langToggleBtn').onclick=()=>{
+        if(lang === 'zh-cn') lang = 'zh-tw';
+        else if(lang === 'zh-tw') lang = 'en';
+        else lang = 'zh-cn';
+        updateLang();
+    };
+    
+    // 启动
     loadMessages();
-    setInterval(() => {
-        loadMessages();
-    }, 3000);  // 每3秒自动检查新留言
-    
+    setInterval(() => { loadMessages(); }, 3000);
     updateLang();
 })();
 </script>
