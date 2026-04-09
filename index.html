@@ -96,7 +96,7 @@
     const SUPABASE_KEY = 'sb_publishable_6ow5oP9QjwBg7d1haNFm7Q_POntmHMC';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    const BAD_WORDS = ['傻逼','蠢货','脑残','弱智','白痴','废物','去死','操你','尼玛','贱人','sb','fuck','shit'];
+    const BAD_WORDS = ['傻逼','蠢货','脑残','弱智','白痴','废物','去死','操你','尼玛','贱人','sb','fuck','shit'傻逼','蠢貨','腦殘','弱智','白癡','廢物','去死','操你','尼瑪','賤人'];
     function hasBadWord(t){if(!t)return false;let l=t.toLowerCase();return BAD_WORDS.some(w=>l.includes(w));}
     
     let lang = 'zh-tw';
