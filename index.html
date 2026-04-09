@@ -2,51 +2,333 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>💙 共情树洞</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>💙 共情树洞 · 心声共鸣</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{background:linear-gradient(145deg,#dceeff,#b2d8fa);font-family:system-ui;padding:20px;min-height:100vh;display:flex;justify-content:center;align-items:center}
-        .treehole{max-width:750px;width:100%;background:rgba(255,255,255,0.95);border-radius:48px;box-shadow:0 30px 45px -20px rgba(0,0,0,0.4);overflow:hidden}
-        .tree-header{background:linear-gradient(135deg,#1e2f5e,#2b4b6e,#2c6e5c);padding:20px 24px;color:#f0fcff}
-        .title-wrapper{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px}
-        .tree-header h1{font-size:1.9rem;display:flex;align-items:center;gap:10px}
-        .lang-switch{background:rgba(255,255,245,0.2);border:none;color:white;padding:6px 14px;border-radius:60px;font-weight:bold;cursor:pointer}
-        .status-bar{background:#eaf4fc;padding:10px 24px;display:flex;justify-content:space-between;font-size:0.8rem;color:#1f4172}
-        .live-tag{display:flex;gap:8px;align-items:center}
-        .dot{width:10px;height:10px;background:#1fbf6e;border-radius:50%;animation:pulse 1.8s infinite}
-        .messages-area{background:#f5fbfe;height:500px;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:18px}
-        .message-card{background:white;border-radius:32px;padding:18px 20px;box-shadow:0 5px 14px rgba(40,60,90,0.08);border:1px solid rgba(112,176,210,0.3)}
-        .message-meta{display:flex;justify-content:space-between;font-size:0.7rem;color:#3f7e9c;margin-bottom:10px}
-        .anonymous-name{background:#e1f0fe;padding:4px 14px;border-radius:40px}
-        .message-text{font-size:1rem;line-height:1.48;color:#1d2e3f;margin:12px 0 14px 0;white-space:pre-wrap}
-        .fab-wrapper{position:sticky;bottom:24px;display:flex;justify-content:flex-end;padding:0 20px 20px}
-        .floating-btn{background:linear-gradient(145deg,#2f6b7c,#1d4e62);width:64px;height:64px;border-radius:40px;border:none;color:white;font-size:2.4rem;cursor:pointer;box-shadow:0 8px 20px rgba(0,32,64,0.3)}
-        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(28,45,65,0.7);backdrop-filter:blur(5px);justify-content:center;align-items:center;z-index:1000}
-        .modal-card{background:white;max-width:500px;width:85%;border-radius:56px;padding:28px 24px 32px;text-align:center}
-        .modal-card textarea{width:100%;border-radius:32px;border:2px solid #bcddff;padding:16px;margin:16px 0;resize:vertical;font-family:inherit}
-        .modal-actions{display:flex;gap:12px;justify-content:center}
-        .modal-actions button{padding:10px 20px;border-radius:40px;border:none;font-weight:bold;cursor:pointer}
-        .submit-msg{background:#2c7e6b;color:white}
-        .cancel-msg{background:#cfdfed;color:#2b5e7a}
-        .footer-sig{text-align:center;padding:14px;font-size:0.7rem;color:#4c799b;background:#e1eff9}
-        @keyframes pulse{0%{opacity:0.5;transform:scale(0.9)}100%{opacity:1;transform:scale(1.2)}}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #dceeff 0%, #b2d8fa 100%);
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .treehole {
+            max-width: 750px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(2px);
+            border-radius: 48px;
+            box-shadow: 0 30px 45px -20px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .tree-header {
+            background: linear-gradient(135deg, #1e2f5e, #2b4b6e, #2c6e5c);
+            padding: 20px 24px;
+            text-align: center;
+            color: #f0fcff;
+        }
+
+        .title-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .tree-header h1 {
+            font-size: 1.9rem;
+            letter-spacing: 2px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lang-switch {
+            background: rgba(255,255,245,0.2);
+            border: none;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .lang-switch:hover {
+            background: rgba(255,255,245,0.4);
+        }
+
+        .subhead {
+            font-size: 0.8rem;
+            opacity: 0.85;
+            margin-top: 8px;
+        }
+
+        .status-bar {
+            background: #eaf4fc;
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            border-bottom: 1px solid #bdd9f0;
+            color: #1f4172;
+        }
+
+        .online-badge {
+            background: #2c7a5e;
+            padding: 4px 14px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.75rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .live-tag {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background-color: #1fbf6e;
+            border-radius: 50%;
+            box-shadow: 0 0 4px #0f9;
+            animation: pulse 1.8s infinite;
+        }
+
+        .messages-area {
+            background: #f5fbfe;
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            scroll-behavior: smooth;
+        }
+
+        .message-card {
+            background: white;
+            border-radius: 32px;
+            padding: 18px 20px;
+            box-shadow: 0 5px 14px rgba(40, 60, 90, 0.08);
+            transition: all 0.2s ease;
+            border: 1px solid rgba(112, 176, 210, 0.3);
+        }
+        .message-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px -12px rgba(33, 77, 111, 0.25);
+            border-color: #6bc6ff;
+        }
+
+        .message-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #3f7e9c;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .anonymous-name {
+            background: #e1f0fe;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            color: #1d4d6b;
+        }
+        .message-text {
+            font-size: 1rem;
+            line-height: 1.48;
+            color: #1d2e3f;
+            margin: 12px 0 14px 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .empathy-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+            border-top: 1px solid #e2eff9;
+            padding-top: 12px;
+        }
+        .empathy-btn {
+            background: linear-gradient(115deg, #eef6ff, #ffffff);
+            border: 1px solid #9ac2db;
+            padding: 6px 16px;
+            border-radius: 60px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2a6b8f;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.15s linear;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .empathy-btn:active { transform: scale(0.94);}
+        .empathy-btn:hover {
+            background: #d9edff;
+            border-color: #3f9ed6;
+            color: #0f4c6b;
+            box-shadow: 0 4px 10px rgba(64, 128, 160, 0.2);
+        }
+        .empathy-count {
+            background: #d1e7fa;
+            border-radius: 40px;
+            padding: 2px 10px;
+            font-weight: bold;
+            font-size: 0.75rem;
+            color: #1e5a7a;
+        }
+        .feel-icon {
+            font-size: 1.1rem;
+        }
+
+        .fab-wrapper {
+            position: sticky;
+            bottom: 24px;
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 12px;
+            padding: 0 20px 20px 20px;
+        }
+        .floating-btn {
+            background: linear-gradient(145deg, #2f6b7c, #1d4e62);
+            width: 64px;
+            height: 64px;
+            border-radius: 40px;
+            border: none;
+            color: white;
+            font-size: 2.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 8px 20px rgba(0, 32, 64, 0.3);
+            transition: 0.2s;
+        }
+        .floating-btn:hover {
+            transform: scale(1.05);
+            background: #217a6e;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(28, 45, 65, 0.7);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: white;
+            max-width: 500px;
+            width: 85%;
+            border-radius: 56px;
+            padding: 28px 24px 32px;
+            text-align: center;
+            box-shadow: 0 30px 40px rgba(0,0,0,0.3);
+            border: 1px solid #cae3f2;
+        }
+        .modal-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 12px;
+            color: #1c5570;
+        }
+        .modal-card textarea {
+            width: 100%;
+            border-radius: 32px;
+            border: 2px solid #bcddff;
+            padding: 16px;
+            font-size: 1rem;
+            margin: 16px 0;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .modal-actions button {
+            padding: 10px 20px;
+            border-radius: 40px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .submit-msg {
+            background: #2c7e6b;
+            color: white;
+        }
+        .cancel-msg {
+            background: #cfdfed;
+            color: #2b5e7a;
+        }
+
+        .footer-sig {
+            text-align: center;
+            padding: 14px 12px 16px;
+            font-size: 0.7rem;
+            color: #4c799b;
+            background: #e1eff9;
+            border-top: 1px solid #bedaf2;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(0.9);}
+            100% { opacity: 1; transform: scale(1.2);}
+        }
     </style>
 </head>
 <body>
+
 <div class="treehole">
     <div class="tree-header">
         <div class="title-wrapper">
             <h1><span>💙🌿</span> <span id="titleText">共情树洞 · 心声共鸣</span> <span>🕊️</span></h1>
             <button class="lang-switch" id="langToggleBtn">🌐 English</button>
         </div>
-        <div class="subhead" id="subheadText" style="font-size:0.8rem;margin-top:8px;">聆听彼此 · 身同感受 | 每一份心事都值得回应</div>
+        <div class="subhead" id="subheadText">聆听彼此 · 身同感受 | 每一份心事都值得回应</div>
     </div>
     <div class="status-bar">
         <div class="live-tag"><span class="dot"></span><span id="liveText">实时共情 · 世界树洞</span></div>
         <div class="online-badge" id="onlineCountDisplay">👥 树洞在线</div>
     </div>
-    <div class="messages-area" id="messageList"><div style="text-align:center;padding:40px;">✨ 加载中... ✨</div></div>
-    <div class="fab-wrapper"><button class="floating-btn" id="openModalBtn">+</button></div>
+
+    <div class="messages-area" id="messageList">
+        <div style="text-align:center; padding:40px;">✨ 风铃摇曳，等待第一个心声 ✨</div>
+    </div>
+
+    <div class="fab-wrapper">
+        <button class="floating-btn" id="openModalBtn">+</button>
+    </div>
+
     <div id="messageModal" class="modal">
         <div class="modal-card">
             <h3 id="modalTitle">🌱 说出你的心事</h3>
@@ -57,105 +339,238 @@
             </div>
         </div>
     </div>
-    <div class="footer-sig">Made with 💙 by respond.dfc.team · 冷调共鸣 · 匿名守护</div>
+
+    <div class="footer-sig">
+        Made with 💙 by respond.dfc.team · 冷调共鸣 · 匿名守护
+    </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// 简化工作版 - 保证能用
-const SUPABASE_URL = 'https://anocweisburxwajijubg.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_6ow5oP9QjwBg7d1haNFm7Q_POntmHMC';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // ========== 你的 Supabase 配置（已填好） ==========
+    const SUPABASE_URL = 'https://anocweisburxwajijubg.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_6ow5oP9QjwBg7d1haNFm7Q_POntmHMC';
+    // ================================================
 
-// 敏感词
-const BAD_WORDS = ['傻逼','蠢货','脑残','弱智','白痴','废物','去死','操你','尼玛','贱人','sb','fuck','shit'];
-function hasBadWord(t) { if(!t) return false; let l = t.toLowerCase(); return BAD_WORDS.some(w => l.includes(w)); }
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 语言
-let lang = 'zh';
-const txt = {
-    zh: { title:'共情树洞 · 心声共鸣', subhead:'聆听彼此 · 身同感受', live:'实时共情 · 世界树洞', modalTitle:'🌱 说出你的心事', send:'💬 匿名倾诉', cancel:'取消', placeholder:'写下你的烦恼...' },
-    en: { title:'Empathy Treehole', subhead:'Listen & Relate', live:'Live Empathy', modalTitle:'🌱 Whisper', send:'💬 Confide', cancel:'Cancel', placeholder:'Write your troubles...' }
-};
-function setLang() {
-    let t = txt[lang];
-    document.getElementById('titleText').innerText = t.title;
-    document.getElementById('subheadText').innerText = t.subhead;
-    document.getElementById('liveText').innerText = t.live;
-    document.getElementById('modalTitle').innerText = t.modalTitle;
-    document.getElementById('modalSendBtn').innerText = t.send;
-    document.getElementById('modalCancelBtn').innerText = t.cancel;
-    document.getElementById('modalMessageInput').placeholder = t.placeholder;
-    document.getElementById('langToggleBtn').innerText = lang === 'zh' ? '🌐 English' : '🌐 中文';
-}
-document.getElementById('langToggleBtn').onclick = function() { lang = lang === 'zh' ? 'en' : 'zh'; setLang(); };
-
-// 用户名
-let userName = localStorage.getItem('treehole_name');
-if (!userName) {
-    const names = ['💧冰露','❄️雪狐','🌊潮汐','🔷蓝鸢','🍃清岚','🌙银月'];
-    userName = names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 999);
-    localStorage.setItem('treehole_name', userName);
-}
-
-// 加载留言
-async function loadMsgs() {
-    const { data, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false }).limit(200);
-    if (error) { console.error(error); return; }
-    const container = document.getElementById('messageList');
-    if (!data || data.length === 0) { container.innerHTML = '<div style="text-align:center;padding:40px;">✨ 第一个留言等你来写 ✨</div>'; return; }
-    let html = '';
-    for(let i=0; i<data.length; i++) {
-        let m = data[i];
-        html += '<div class="message-card">' +
-            '<div class="message-meta"><span class="anonymous-name">' + safe(m.anonymous_name) + '</span><span>' + timeAgo(m.created_at) + '</span></div>' +
-            '<div class="message-text">' + safe(m.content) + '</div>' +
-            '</div>';
+    // ---------- 敏感词库 ----------
+    const BAD_WORDS = ['傻逼', '蠢货', '脑残', '弱智', '白痴', '废物', '去死', '操你', '尼玛', '贱人', 'sb', 'fuck', 'shit', 'asshole', 'bitch', 'nmsl', 'cnm', 'tmd'];
+    function containsBadWord(text) {
+        if (!text) return false;
+        let lower = text.toLowerCase();
+        for (let bad of BAD_WORDS) {
+            if (lower.includes(bad.toLowerCase())) return true;
+        }
+        return false;
     }
-    container.innerHTML = html;
-}
 
-// 发送留言
-async function sendMsg(content) {
-    if (!content.trim()) { alert('请写点心事~'); return false; }
-    if (content.length > 400) { alert('最多400字~'); return false; }
-    if (hasBadWord(content)) { alert('🕊️ 请用善意传递温暖'); return false; }
-    const { error } = await supabase.from('messages').insert([{ content: content.trim(), anonymous_name: userName, created_at: new Date().toISOString() }]);
-    if (error) { alert('发送失败: ' + error.message); return false; }
-    return true;
-}
-
-// 实时订阅
-function sub() {
-    supabase.channel('msgs').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => loadMsgs()).subscribe();
-}
-
-function timeAgo(iso) {
-    if (!iso) return '刚刚';
-    let d = new Date(iso), n = new Date(), diff = Math.floor((n - d) / 60000);
-    if (diff < 1) return '几秒前';
-    if (diff < 60) return diff + '分钟前';
-    if (diff < 1440) return Math.floor(diff / 60) + '小时前';
-    return Math.floor(diff / 1440) + '天前';
-}
-function safe(s) { if (!s) return ''; return s.replace(/[&<>]/g, function(m) { if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }); }
-
-// 模态框
-const modal = document.getElementById('messageModal');
-document.getElementById('openModalBtn').onclick = function() { modal.style.display = 'flex'; document.getElementById('modalMessageInput').value = ''; };
-document.getElementById('modalCancelBtn').onclick = function() { modal.style.display = 'none'; };
-document.getElementById('modalSendBtn').onclick = async function() {
-    let input = document.getElementById('modalMessageInput');
-    if (await sendMsg(input.value)) {
-        modal.style.display = 'none';
-        input.value = '';
-        loadMsgs();
+    // ---------- 国际化 ----------
+    let currentLang = 'zh';
+    const i18n = {
+        zh: {
+            title: "共情树洞 · 心声共鸣",
+            subhead: "聆听彼此 · 身同感受 | 每一份心事都值得回应",
+            live: "实时共情 · 世界树洞",
+            modalTitle: "🌱 说出你的心事",
+            send: "💬 匿名倾诉",
+            cancel: "取消",
+            empathyLabel: "身同感受",
+            placeholder: "写下你的烦恼、秘密或鼓励... (最长400字)",
+            emptyMsg: "✨ 风铃摇曳，等待第一个心声 ✨"
+        },
+        en: {
+            title: "Empathy Treehole · Resonant Voices",
+            subhead: "Listen & Relate | Every feeling matters",
+            live: "Live Empathy · Global Heartbeat",
+            modalTitle: "🌱 Whisper your heart",
+            send: "💬 Anonymous confide",
+            cancel: "Cancel",
+            empathyLabel: "I feel you",
+            placeholder: "Write your troubles, secrets, or encouragement... (Max 400 chars)",
+            emptyMsg: "✨ Wind chimes swaying, waiting for the first whisper ✨"
+        }
+    };
+    
+    function updateUI() {
+        const t = i18n[currentLang];
+        document.getElementById('titleText').innerText = t.title;
+        document.getElementById('subheadText').innerText = t.subhead;
+        document.getElementById('liveText').innerText = t.live;
+        document.getElementById('modalTitle').innerText = t.modalTitle;
+        document.getElementById('modalSendBtn').innerText = t.send;
+        document.getElementById('modalCancelBtn').innerText = t.cancel;
+        document.getElementById('modalMessageInput').placeholder = t.placeholder;
+        document.querySelectorAll('.empathy-text').forEach(el => el.innerText = t.empathyLabel);
+        document.getElementById('langToggleBtn').innerText = currentLang === 'zh' ? '🌐 English' : '🌐 中文';
     }
-};
-window.onclick = function(e) { if (e.target === modal) modal.style.display = 'none'; };
+    
+    document.getElementById('langToggleBtn').addEventListener('click', () => {
+        currentLang = currentLang === 'zh' ? 'en' : 'zh';
+        updateUI();
+        loadMessages(); // 刷新留言显示
+    });
 
-loadMsgs();
-sub();
-setLang();
+    // 匿名用户标识
+    let currentUserTag = localStorage.getItem('treehole_user_name');
+    if (!currentUserTag) {
+        const names = ['💧 冰露', '❄️ 雪狐', '🌊 潮汐', '🔷 蓝鸢', '🍃 清岚', '🪶 羽落', '🌙 银月', '💎 星尘'];
+        currentUserTag = names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 999);
+        localStorage.setItem('treehole_user_name', currentUserTag);
+    }
+
+    // 渲染留言
+    async function loadMessages() {
+        const { data, error } = await supabase
+            .from('messages')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(200);
+        
+        if (error) {
+            console.error('加载失败:', error);
+            document.getElementById('messageList').innerHTML = '<div style="text-align:center; padding:40px; color:#999;">⚠️ 连接失败，请刷新</div>';
+            return;
+        }
+        
+        const container = document.getElementById('messageList');
+        if (!data || data.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding:40px;">✨ ${i18n[currentLang].emptyMsg} ✨</div>`;
+            return;
+        }
+        
+        const t = i18n[currentLang];
+        let html = '';
+        for (let msg of data) {
+            html += `
+                <div class="message-card" data-id="${msg.id}">
+                    <div class="message-meta">
+                        <span class="anonymous-name">${escapeHtml(msg.anonymous_name)}</span>
+                        <span>${formatTime(msg.created_at)}</span>
+                    </div>
+                    <div class="message-text">${escapeHtml(msg.content)}</div>
+                    <div class="empathy-section">
+                        <button class="empathy-btn" data-id="${msg.id}" data-count="${msg.empathy_count || 0}">
+                            <span class="feel-icon">💙</span>
+                            <span class="empathy-text">${t.empathyLabel}</span>
+                            <span class="empathy-count">${msg.empathy_count || 0}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+        
+        // 绑定点赞事件
+        document.querySelectorAll('.empathy-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const msgId = btn.getAttribute('data-id');
+                let currentCount = parseInt(btn.getAttribute('data-count'));
+                const newCount = currentCount + 1;
+                const { error } = await supabase
+                    .from('messages')
+                    .update({ empathy_count: newCount })
+                    .eq('id', msgId);
+                if (!error) {
+                    btn.setAttribute('data-count', newCount);
+                    btn.querySelector('.empathy-count').innerText = newCount;
+                } else {
+                    console.error('点赞失败', error);
+                }
+            });
+        });
+    }
+
+    // 发送留言
+    async function sendMessage(content) {
+        if (!content.trim()) {
+            alert(i18n[currentLang].sendFail || '请写点心事~');
+            return false;
+        }
+        if (content.length > 400) {
+            alert('最多400字哦~');
+            return false;
+        }
+        if (containsBadWord(content)) {
+            alert('🕊️ 树洞守护: 请用善意传递温暖');
+            return false;
+        }
+        
+        const { error } = await supabase
+            .from('messages')
+            .insert([{
+                content: content.trim(),
+                anonymous_name: currentUserTag,
+                created_at: new Date().toISOString(),
+                empathy_count: 0
+            }]);
+        
+        if (error) {
+            alert('发送失败: ' + error.message);
+            console.error(error);
+            return false;
+        }
+        return true;
+    }
+
+    // 实时订阅
+    function subscribeToMessages() {
+        const channel = supabase.channel('public:messages');
+        channel.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => loadMessages())
+               .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => loadMessages())
+               .subscribe();
+    }
+
+    // 工具函数
+    function formatTime(iso) {
+        if (!iso) return '刚刚';
+        const date = new Date(iso);
+        const now = new Date();
+        const diff = Math.floor((now - date) / 60000);
+        if (diff < 1) return '几秒前';
+        if (diff < 60) return `${diff}分钟前`;
+        if (diff < 1440) return `${Math.floor(diff / 60)}小时前`;
+        return `${Math.floor(diff / 1440)}天前`;
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+
+    // 模态框逻辑
+    const modal = document.getElementById('messageModal');
+    const openBtn = document.getElementById('openModalBtn');
+    const modalSend = document.getElementById('modalSendBtn');
+    const modalCancel = document.getElementById('modalCancelBtn');
+    const modalInput = document.getElementById('modalMessageInput');
+    
+    openBtn.onclick = () => {
+        modal.style.display = 'flex';
+        modalInput.value = '';
+        modalInput.focus();
+    };
+    modalCancel.onclick = () => { modal.style.display = 'none'; };
+    modalSend.onclick = async () => {
+        const msg = modalInput.value.trim();
+        if (!msg) { alert('请写点心事再发送~'); return; }
+        const success = await sendMessage(msg);
+        if (success) {
+            modal.style.display = 'none';
+            modalInput.value = '';
+            await loadMessages();
+        }
+    };
+    window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+
+    // 启动应用
+    loadMessages();
+    subscribeToMessages();
+    updateUI();
+    
+    // 在线人数显示（简化）
+    document.getElementById('onlineCountDisplay').innerHTML = '👥 实时树洞';
 </script>
 </body>
 </html>
