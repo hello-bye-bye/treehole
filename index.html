@@ -305,6 +305,8 @@
     </div>
     <div class="messages-area" id="messageList"><div style="text-align:center;padding:40px;">✨ 加载中... ✨</div></div>
     <div class="fab-wrapper"><button class="floating-btn" id="openModalBtn">+</button></div>
+    
+    <!-- 写新留言弹窗 -->
     <div id="messageModal" class="modal">
         <div class="modal-card">
             <h3 id="modalTitle">🌱 说出你的心事</h3>
@@ -315,6 +317,7 @@
             </div>
         </div>
     </div>
+    
     <!-- 回复弹窗 -->
     <div id="replyModal" class="modal">
         <div class="modal-card">
@@ -326,6 +329,7 @@
             </div>
         </div>
     </div>
+    
     <div class="footer-sig">Made with 💙 by respond.dfc.team · 冷调共鸣 · 匿名守护</div>
 </div>
 
@@ -343,8 +347,20 @@
     // 语言
     let lang = 'zh';
     const txt = {
-        zh: { title:'共情树洞 · 心声共鸣', subhead:'聆听彼此 · 身同感受', live:'实时共情 · 世界树洞', modalTitle:'🌱 说出你的心事', send:'💬 匿名倾诉', cancel:'取消', empathy:'身同感受', reply:'💬 回复', replyTitle:'💬 回复这条心事', replySend:'发送回复', placeholder:'写下你的烦恼...', empty:'✨ 风铃摇曳，等待第一个心声 ✨', replyPlaceholder:'写下你的回应... (最长300字)' },
-        en: { title:'Empathy Treehole', subhead:'Listen & Relate', live:'Live Empathy', modalTitle:'🌱 Whisper', send:'💬 Confide', cancel:'Cancel', empathy:'I feel you', reply:'💬 Reply', replyTitle:'💬 Reply to this', replySend:'Send Reply', placeholder:'Write your troubles...', empty:'✨ Waiting for the first whisper ✨', replyPlaceholder:'Write your response... (Max 300)' }
+        zh: { 
+            title:'共情树洞 · 心声共鸣', subhead:'聆听彼此 · 身同感受', live:'实时共情 · 世界树洞', 
+            modalTitle:'🌱 说出你的心事', send:'💬 匿名倾诉', cancel:'取消', 
+            empathy:'身同感受', reply:'💬 回复', replyTitle:'💬 回复这条心事', 
+            replySend:'发送回复', placeholder:'写下你的烦恼...', 
+            empty:'✨ 风铃摇曳，等待第一个心声 ✨', replyPlaceholder:'写下你的回应... (最长300字)' 
+        },
+        en: { 
+            title:'Empathy Treehole', subhead:'Listen & Relate', live:'Live Empathy', 
+            modalTitle:'🌱 Whisper', send:'💬 Confide', cancel:'Cancel', 
+            empathy:'I feel you', reply:'💬 Reply', replyTitle:'💬 Reply to this', 
+            replySend:'Send Reply', placeholder:'Write your troubles...', 
+            empty:'✨ Waiting for the first whisper ✨', replyPlaceholder:'Write your response... (Max 300)' 
+        }
     };
     
     function updateLang() {
@@ -360,8 +376,6 @@
         document.getElementById('replySendBtn').innerText = t.replySend;
         document.getElementById('replyInput').placeholder = t.replyPlaceholder;
         document.getElementById('langToggleBtn').innerText = lang === 'zh' ? '🌐 English' : '🌐 中文';
-        document.querySelectorAll('.empathy-text').forEach(el => el.innerText = t.empathy);
-        document.querySelectorAll('.reply-text-btn').forEach(el => el.innerText = t.reply);
         loadMessages(); // 刷新显示
     }
     
@@ -467,7 +481,12 @@
         if (!content.trim()) { alert('请写点心事~'); return false; }
         if (content.length > 400) { alert('最多400字~'); return false; }
         if (hasBadWord(content)) { alert('🕊️ 请用善意传递温暖'); return false; }
-        const { error } = await supabase.from('messages').insert([{ content: content.trim(), anonymous_name: userName, created_at: new Date().toISOString(), empathy_count: 0 }]);
+        const { error } = await supabase.from('messages').insert([{ 
+            content: content.trim(), 
+            anonymous_name: userName, 
+            created_at: new Date().toISOString(), 
+            empathy_count: 0 
+        }]);
         if (error) { alert('发送失败: ' + error.message); return false; }
         return true;
     }
