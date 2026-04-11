@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>🔐 树洞管理后台</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#1a1a2e;font-family:system-ui;padding:20px}
+        .container{max-width:1200px;margin:0 auto}
+        h1{color:white;margin-bottom:20px}
+        .login-box{background:white;max-width:400px;margin:100px auto;padding:30px;border-radius:20px;text-align:center}
+        .login-box input{width:100%;padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:10px}
+        .login-box button{background:#2c7e6b;color:white;padding:12px;border:none;border-radius:10px;cursor:pointer;width:100%}
+        .tabs{display:flex;gap:10px;margin-bottom:20px}
+        .tab{background:#333;color:white;padding:10px 20px;border:none;border-radius:10px;cursor:pointer}
+        .tab.active{background:#2c7e6b}
+        .message-list{display:flex;flex-direction:column;gap:15px}
+        .message-card{background:white;border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+        .message-header{display:flex;justify-content:space-between;margin-bottom:10px;color:#666;font-size:14px}
+        .message-content{font-size:16px;margin-bottom:15px;line-height:1.5}
+        .reply-item{background:#f5f5f5;border-radius:12px;padding:12px;margin-top:10px;margin-left:20px}
+        .actions{display:flex;gap:10px}
+        .approve-btn{background:#2c7e6b;color:white;padding:8px 20px;border:none;border-radius:8px;cursor:pointer}
+        .reject-btn{background:#c0392b;color:white;padding:8px 20px;border:none;border-radius:8px;cursor:pointer}
+        .status{padding:4px 12px;border-radius:20px;font-size:12px}
+        .status.pending{background:#f39c12;color:white}
+        .status.approved{background:#27ae60;color:white}
+        .logout-btn{background:#555;color:white;padding:8px 16px;border:none;border-radius:8px;cursor:pointer;float:right}
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <div id="loginPanel" style="display:none">
+        <div class="login-box">
+            <h2>🔐 管理员登录</h2>
+            <input type="password" id="adminPassword" placeholder="请输入管理员密码">
+            <button onclick="login()">登录</button>
+        </div>
+    </div>
+    <div id="adminPanel" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <h1>🌳 树洞审核后台</h1>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('pending')">⏳ 待审核留言</button>
+            <button class="tab" onclick="showTab('approved')">✅ 已批准留言</button>
+        </div>
+        <div id="pendingList" class="message-list"></div>
+        <div id="approvedList" class="message-list" style="display:none"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = 'https://anocweisburxwajijubg.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_6ow5oP9QjwBg7d1haNFm7Q_POntmHMC';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    const ADMIN_PASSWORD = 'treehole2024';
+    
+    let currentUser = null;
+    
+    async function loadPendingMessages() {
+        const { data: messages } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('approved', false)
+            .order('created_at', { ascending: false });
+        
+        const { data: replies } = await supabase
+            .from('replies')
+            .select('*')
+            .eq('approved', false)
+            .order('created_at', { ascending: false });
+        
+        renderPendingMessages(messages || [], replies || []);
+    }
+    
+    async function loadApprovedMessages() {
+        const { data: messages } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('approved', true)
+            .order('created_at', { ascending: false })
+            .limit(100);
+        
+        const { data: replies } = await supabase
+            .from('replies')
+            .select('*')
+            .eq('approved', true)
+            .order('created_at', { ascending: false })
+            .limit(100);
+        
+        renderApprovedMessages(messages || [], replies || []);
+    }
+    
+    function renderPendingMessages(messages, replies) {
+        const container = document.getElementById('pendingList');
+        if (messages.length === 0 && replies.length === 0) {
+            container.innerHTML = '<div style="background:white;border-radius:16px;padding:40px;text-align:center;color:#999">✨ 暂无待审核内容 ✨</div>';
+            return;
+        }
+        
+        let html = '';
+        for (let m of messages) {
+            html += `
+                <div class="message-card">
+                    <div class="message-header">
+                        <span>📝 留言 #${m.id}</span>
+                        <span class="status pending">待审核</span>
+                    </div>
+                    <div class="message-header">
+                        <span>👤 ${escapeHtml(m.anonymous_name)}</span>
+                        <span>🕐 ${new Date(m.created_at).toLocaleString()}</span>
+                    </div>
+                    <div class="message-content">${escapeHtml(m.content)}</div>
+                    <div class="actions">
+                        <button class="approve-btn" onclick="approveMessage(${m.id})">✅ 批准显示</button>
+                        <button class="reject-btn" onclick="rejectMessage(${m.id})">❌ 拒绝删除</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        for (let r of replies) {
+            html += `
+                <div class="message-card">
+                    <div class="message-header">
+                        <span>💬 回复 #${r.id} (针对留言 #${r.message_id})</span>
+                        <span class="status pending">待审核</span>
+                    </div>
+                    <div class="message-header">
+                        <span>👤 ${escapeHtml(r.anonymous_name)}</span>
+                        <span>🕐 ${new Date(r.created_at).toLocaleString()}</span>
+                    </div>
+                    <div class="message-content">${escapeHtml(r.content)}</div>
+                    <div class="actions">
+                        <button class="approve-btn" onclick="approveReply(${r.id})">✅ 批准显示</button>
+                        <button class="reject-btn" onclick="rejectReply(${r.id})">❌ 拒绝删除</button>
+                    </div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+    
+    function renderApprovedMessages(messages, replies) {
+        const container = document.getElementById('approvedList');
+        if (messages.length === 0 && replies.length === 0) {
+            container.innerHTML = '<div style="background:white;border-radius:16px;padding:40px;text-align:center;color:#999">✨ 暂无已批准内容 ✨</div>';
+            return;
+        }
+        
+        let html = '';
+        for (let m of messages) {
+            html += `
+                <div class="message-card">
+                    <div class="message-header">
+                        <span>📝 留言 #${m.id}</span>
+                        <span class="status approved">已批准</span>
+                    </div>
+                    <div class="message-header">
+                        <span>👤 ${escapeHtml(m.anonymous_name)}</span>
+                        <span>🕐 ${new Date(m.created_at).toLocaleString()}</span>
+                    </div>
+                    <div class="message-content">${escapeHtml(m.content)}</div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+    
+    async function approveMessage(id) {
+        await supabase.from('messages').update({ approved: true }).eq('id', id);
+        loadPendingMessages();
+        loadApprovedMessages();
+    }
+    
+    async function rejectMessage(id) {
+        await supabase.from('messages').delete().eq('id', id);
+        loadPendingMessages();
+    }
+    
+    async function approveReply(id) {
+        await supabase.from('replies').update({ approved: true }).eq('id', id);
+        loadPendingMessages();
+        loadApprovedMessages();
+    }
+    
+    async function rejectReply(id) {
+        await supabase.from('replies').delete().eq('id', id);
+        loadPendingMessages();
+    }
+    
+    function login() {
+        const pwd = document.getElementById('adminPassword').value;
+        if (pwd === ADMIN_PASSWORD) {
+            currentUser = 'admin';
+            localStorage.setItem('admin_logged_in', 'true');
+            showAdminPanel();
+        } else {
+            alert('密码错误！');
+        }
+    }
+    
+    function logout() {
+        currentUser = null;
+        localStorage.removeItem('admin_logged_in');
+        showLoginPanel();
+    }
+    
+    function showAdminPanel() {
+        document.getElementById('loginPanel').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        loadPendingMessages();
+        loadApprovedMessages();
+    }
+    
+    function showLoginPanel() {
+        document.getElementById('loginPanel').style.display = 'block';
+        document.getElementById('adminPanel').style.display = 'none';
+    }
+    
+    function showTab(tab) {
+        if (tab === 'pending') {
+            document.getElementById('pendingList').style.display = 'flex';
+            document.getElementById('approvedList').style.display = 'none';
+            document.querySelectorAll('.tab')[0].classList.add('active');
+            document.querySelectorAll('.tab')[1].classList.remove('active');
+            loadPendingMessages();
+        } else {
+            document.getElementById('pendingList').style.display = 'none';
+            document.getElementById('approvedList').style.display = 'flex';
+            document.querySelectorAll('.tab')[0].classList.remove('active');
+            document.querySelectorAll('.tab')[1].classList.add('active');
+            loadApprovedMessages();
+        }
+    }
+    
+    function escapeHtml(s) {
+        if (!s) return '';
+        return s.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+    
+    if (localStorage.getItem('admin_logged_in') === 'true') {
+        showAdminPanel();
+    } else {
+        showLoginPanel();
+    }
+    
+    window.approveMessage = approveMessage;
+    window.rejectMessage = rejectMessage;
+    window.approveReply = approveReply;
+    window.rejectReply = rejectReply;
+    window.login = login;
+    window.logout = logout;
+    window.showTab = showTab;
+</script>
+</body>
+</html>
