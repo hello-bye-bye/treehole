@@ -112,7 +112,7 @@
                 for (let i = 0; i < messages.length; i++) {
                     var msg = messages[i];
                     var time = new Date(msg.created_at).toLocaleString();
-                    html += '<div class="card" id="msg-' + msg.id + '">';
+                    html += '<div class="card">';
                     html += '<div><span class="pending">📝 待审核留言</span> #' + msg.id + '</div>';
                     html += '<div><strong>' + safe(msg.anonymous_name) + '</strong> 于 ' + time + '</div>';
                     html += '<div style="margin:10px 0">' + safe(msg.content) + '</div>';
@@ -126,7 +126,7 @@
                 for (let i = 0; i < replies.length; i++) {
                     var rep = replies[i];
                     var time = new Date(rep.created_at).toLocaleString();
-                    html += '<div class="reply-card" id="reply-' + rep.id + '">';
+                    html += '<div class="reply-card">';
                     html += '<div><span class="pending">💬 待审核回复</span> <span class="reply-badge">针对留言 #' + rep.message_id + '</span></div>';
                     html += '<div><strong>' + safe(rep.anonymous_name) + '</strong> 于 ' + time + '</div>';
                     html += '<div style="margin:10px 0">' + safe(rep.content) + '</div>';
@@ -189,27 +189,27 @@
         async function approveMessage(id) {
             await supabase.from('messages').update({ approved: true }).eq('id', id);
             alert('✅ 留言已批准');
-            loadPendingAll(); // 立即刷新列表
+            await loadPendingAll(); // 等待刷新完成
         }
         
         async function rejectMessage(id) {
             if (!confirm('确定永久删除这条留言吗？')) return;
             await supabase.from('messages').delete().eq('id', id);
             alert('❌ 已删除');
-            loadPendingAll(); // 立即刷新列表，被删除的项会消失
+            await loadPendingAll(); // 等待刷新完成
         }
         
         async function approveReply(id) {
             await supabase.from('replies').update({ approved: true }).eq('id', id);
             alert('✅ 回复已批准');
-            loadPendingAll(); // 立即刷新列表
+            await loadPendingAll(); // 等待刷新完成
         }
         
         async function rejectReply(id) {
             if (!confirm('确定永久删除这条回复吗？')) return;
             await supabase.from('replies').delete().eq('id', id);
             alert('❌ 已删除');
-            loadPendingAll(); // 立即刷新列表，被删除的项会消失
+            await loadPendingAll(); // 等待刷新完成
         }
         
         function manualRefresh() {
