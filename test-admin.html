@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>树洞后台测试版</title>
+    <style>
+        body{font-family:system-ui;padding:20px;background:#1a1a2e;color:white}
+        .card{background:white;color:#333;border-radius:16px;padding:20px;margin-bottom:15px}
+        button{background:#2c7e6b;color:white;padding:8px 16px;border:none;border-radius:8px;cursor:pointer;margin:5px}
+        .pending{background:#f39c12;color:white;padding:2px 10px;border-radius:20px;display:inline-block;font-size:12px}
+        hr{margin:20px 0}
+    </style>
+</head>
+<body>
+    <h1>🔐 树洞后台 (测试版)</h1>
+    <p>密码: <input type="password" id="pwd" placeholder="输入密码"> <button onclick="checkLogin()">登录</button></p>
+    
+    <div id="adminArea" style="display:none">
+        <h2>📋 待审核留言</h2>
+        <button onclick="loadPending()">🔄 刷新</button>
+        <div id="list"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabase = window.supabase.createClient(
+            'https://anocweisburxwajijubg.supabase.co',
+            'sb_publishable_6ow5oP9QjwBg7d1haNFm7Q_POntmHMC'
+        );
+        
+        async function loadPending() {
+            document.getElementById('list').innerHTML = '加载中...';
+            
+            // 直接查询 approved = false 的留言
+            const { data, error } = await supabase
+                .from('messages')
+                .select('*')
+                .eq('approved', false)
+                .order('created_at', { ascending: false });
+            
+            if (error) {
+                document.getElementById('list').innerHTML = '❌ 错误: ' + error.message;
+                return;
+            }
+            
+            if (!data || data.length === 0) {
+                document.getElementById('list').innerHTML = '✨ 暂无待审核留言 ✨';
+                return;
+            }
+            
+            let html = '';
+            for (let m of data) {
+                html += `
+                    <div class="card">
+                        <div><span class="pending">待审核</span> #${m.id}</div>
+                        <div><strong>${escapeHtml(m.anonymous_name)}</strong> 于 ${new Date(m.created_at).toLocaleString()}</div>
+                        <div style="margin:10px 0">${escapeHtml(m.content)}</div>
+                        <button onclick="approve(${m.id})">✅ 批准显示</button>
+                        <button onclick="reject(${m.id})" style="background:#c0392b">❌ 拒绝删除</button>
+                    </div>
+                `;
+            }
+            document.getElementById('list').innerHTML = html;
+        }
+        
+        async function approve(id) {
+            await supabase.from('messages').update({ approved: true }).eq('id', id);
+            loadPending();
+            alert('已批准，刷新主页即可看到');
+        }
+        
+        async function reject(id) {
+            await supabase.from('messages').delete().eq('id', id);
+            loadPending();
+            alert('已删除');
+        }
+        
+        function checkLogin() {
+            const pwd = document.getElementById('pwd').value;
+            if (pwd === 'treehole2024') {
+                document.getElementById('adminArea').style.display = 'block';
+                loadPending();
+            } else {
+                alert('密码错误');
+            }
+        }
+        
+        function escapeHtml(s) {
+            if (!s) return '';
+            return s.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
+        }
+    </script>
+</body>
+</html>
