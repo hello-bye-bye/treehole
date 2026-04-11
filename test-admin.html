@@ -2,19 +2,20 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>树洞后台测试版</title>
+    <title>树洞后台</title>
     <style>
         body{font-family:system-ui;padding:20px;background:#1a1a2e;color:white}
         .card{background:white;color:#333;border-radius:16px;padding:20px;margin-bottom:15px}
         button{background:#2c7e6b;color:white;padding:8px 16px;border:none;border-radius:8px;cursor:pointer;margin:5px}
         .pending{background:#f39c12;color:white;padding:2px 10px;border-radius:20px;display:inline-block;font-size:12px}
-        hr{margin:20px 0}
+        input{padding:8px;border-radius:8px;border:none;margin:5px}
     </style>
 </head>
 <body>
-    <h1>🔐 树洞后台 (测试版)</h1>
-    <p>密码: <input type="password" id="pwd" placeholder="输入密码"> <button onclick="checkLogin()">登录</button></p>
-    
+    <h1>🔐 树洞后台</h1>
+    <div id="loginBox">
+        <p>密码: <input type="password" id="pwd" placeholder="输入密码"> <button onclick="login()">登录</button></p>
+    </div>
     <div id="adminArea" style="display:none">
         <h2>📋 待审核留言</h2>
         <button onclick="loadPending()">🔄 刷新</button>
@@ -23,15 +24,24 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const supabase = window.supabase.createClient(
-            'https://anocweisburxwajijubg.supabase.co',
-            'sb_publishable_6ow5oP9QjwBg7d1haNFm7Q_POntmHMC'
-        );
+        const SUPABASE_URL = 'https://anocweisburxwajijubg.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_6ow5oP9QjwBg7d1haNFm7Q_POntmHMC';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        function login() {
+            var pwd = document.getElementById('pwd').value;
+            if (pwd === 'treehole2024') {
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('adminArea').style.display = 'block';
+                loadPending();
+            } else {
+                alert('密码错误！');
+            }
+        }
         
         async function loadPending() {
             document.getElementById('list').innerHTML = '加载中...';
             
-            // 直接查询 approved = false 的留言
             const { data, error } = await supabase
                 .from('messages')
                 .select('*')
@@ -39,7 +49,7 @@
                 .order('created_at', { ascending: false });
             
             if (error) {
-                document.getElementById('list').innerHTML = '❌ 错误: ' + error.message;
+                document.getElementById('list').innerHTML = '错误: ' + error.message;
                 return;
             }
             
@@ -49,16 +59,15 @@
             }
             
             let html = '';
-            for (let m of data) {
-                html += `
-                    <div class="card">
-                        <div><span class="pending">待审核</span> #${m.id}</div>
-                        <div><strong>${escapeHtml(m.anonymous_name)}</strong> 于 ${new Date(m.created_at).toLocaleString()}</div>
-                        <div style="margin:10px 0">${escapeHtml(m.content)}</div>
-                        <button onclick="approve(${m.id})">✅ 批准显示</button>
-                        <button onclick="reject(${m.id})" style="background:#c0392b">❌ 拒绝删除</button>
-                    </div>
-                `;
+            for (let i = 0; i < data.length; i++) {
+                var m = data[i];
+                html += '<div class="card">' +
+                    '<div><span class="pending">待审核</span> #' + m.id + '</div>' +
+                    '<div><strong>' + escapeHtml(m.anonymous_name) + '</strong> 于 ' + new Date(m.created_at).toLocaleString() + '</div>' +
+                    '<div style="margin:10px 0">' + escapeHtml(m.content) + '</div>' +
+                    '<button onclick="approve(' + m.id + ')">✅ 批准显示</button>' +
+                    '<button onclick="reject(' + m.id + ')" style="background:#c0392b">❌ 拒绝删除</button>' +
+                    '</div>';
             }
             document.getElementById('list').innerHTML = html;
         }
@@ -75,19 +84,14 @@
             alert('已删除');
         }
         
-        function checkLogin() {
-            const pwd = document.getElementById('pwd').value;
-            if (pwd === 'treehole2024') {
-                document.getElementById('adminArea').style.display = 'block';
-                loadPending();
-            } else {
-                alert('密码错误');
-            }
-        }
-        
         function escapeHtml(s) {
             if (!s) return '';
-            return s.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
+            return s.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
     </script>
 </body>
