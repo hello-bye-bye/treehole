@@ -38,10 +38,10 @@
         .submit-msg{background:#2c7e6b;color:white}
         .cancel-msg{background:#cfdfed;color:#2b5e7a}
         .footer-sig{text-align:center;padding:14px;font-size:0.7rem;color:#4c799b;background:#e1eff9}
-        @keyframes pulse{0%{opacity:0.5;transform:scale(0.9)}100%{opacity:1;transform:scale(1.2)}}
-        .live-badge{background:#2c7a5e;padding:4px 14px;border-radius:40px;color:white;font-weight:bold;font-size:0.75rem}
         .admin-link{position:fixed;bottom:20px;left:20px;background:#555;color:white;padding:6px 12px;border-radius:20px;font-size:12px;text-decoration:none;z-index:1000}
         .admin-link:hover{background:#333}
+        @keyframes pulse{0%{opacity:0.5;transform:scale(0.9)}100%{opacity:1;transform:scale(1.2)}}
+        .live-badge{background:#2c7a5e;padding:4px 14px;border-radius:40px;color:white;font-weight:bold;font-size:0.75rem}
     </style>
 </head>
 <body>
@@ -62,7 +62,7 @@
 </div>
 
 <div class="fab-wrapper"><button class="floating-btn" id="openModalBtn">+</button></div>
-<a href="admin.html" class="admin-link" target="_blank">🔐 管理後台</a>
+<a href="test-admin.html" class="admin-link">🔐 管理後台</a>
 
 <div id="messageModal" class="modal">
     <div class="modal-card">
@@ -92,7 +92,6 @@
     const SUPABASE_KEY = 'sb_publishable_6ow5oP9QjwBg7d1haNFm7Q_POntmHMC';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    // 敏感词库
     const BAD_WORDS = [
         '傻逼', '蠢货', '脑残', '弱智', '白痴', '废物', '去死', '操你', '尼玛', '贱人',
         'sb', 'fuck', 'shit', 'asshole', 'bitch', 'nmsl', 'cnm', 'tmd',
@@ -165,7 +164,6 @@
     }
     
     async function loadMessages(){
-        // 关键改动：只查询 approved = true 的留言
         const{data:messages,error:msgErr}=await supabase
             .from('messages')
             .select('*')
@@ -174,7 +172,7 @@
             .limit(200);
         if(msgErr){console.error('留言加載錯誤:',msgErr);document.getElementById('realtimeStatus').innerHTML='🔴 連接異常';return;}
         
-        // 只查询 approved = true 的回复
+        // 关键修复：只查询已批准的回复
         const{data:replies,error:repErr}=await supabase
             .from('replies')
             .select('*')
@@ -240,7 +238,6 @@
         if(!content.trim()){alert('請寫點心事~');return false;}
         if(content.length>400){alert('最多400字~');return false;}
         if(hasBadWord(content)){alert('🕊️ 請用善意傳遞溫暖');return false;}
-        // 新留言默认 approved = false，需要管理员批准
         let{error}=await supabase.from('messages').insert([{
             content:content.trim(),
             anonymous_name:userName,
@@ -257,7 +254,6 @@
         if(!content.trim()){alert('請寫點回應~');return false;}
         if(content.length>300){alert('最多300字~');return false;}
         if(hasBadWord(content)){alert('🕊️ 請用善意傳遞溫暖');return false;}
-        // 新回复默认 approved = false，需要管理员批准
         let{error}=await supabase.from('replies').insert([{
             message_id:messageId,
             content:content.trim(),
