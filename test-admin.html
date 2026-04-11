@@ -13,7 +13,6 @@
         input{padding:8px;border-radius:8px;border:none;margin:5px}
         .reject{background:#c0392b}
         .auto-refresh{font-size:12px;color:#aaa;margin-left:10px}
-        hr{margin:15px 0;border-color:#444}
     </style>
 </head>
 <body>
@@ -72,7 +71,7 @@
             if (autoRefreshInterval) clearInterval(autoRefreshInterval);
             autoRefreshInterval = setInterval(function() {
                 if (currentView === 'pending') {
-                    loadPendingAll(true); // 静默刷新
+                    loadPendingAll(true);
                 }
             }, 5000);
         }
@@ -80,7 +79,6 @@
         async function loadPendingAll(silent) {
             if (!silent) messageList.innerHTML = '加载中...';
             
-            // 获取待审核的留言
             const { data: messages, error: msgError } = await supabase
                 .from('messages')
                 .select('*')
@@ -92,7 +90,6 @@
                 return;
             }
             
-            // 获取待审核的回复
             const { data: replies, error: repError } = await supabase
                 .from('replies')
                 .select('*')
@@ -111,12 +108,11 @@
             
             let html = '';
             
-            // 显示待审核的留言
             if (messages && messages.length > 0) {
                 for (let i = 0; i < messages.length; i++) {
                     var msg = messages[i];
                     var time = new Date(msg.created_at).toLocaleString();
-                    html += '<div class="card">';
+                    html += '<div class="card" id="msg-' + msg.id + '">';
                     html += '<div><span class="pending">📝 待审核留言</span> #' + msg.id + '</div>';
                     html += '<div><strong>' + safe(msg.anonymous_name) + '</strong> 于 ' + time + '</div>';
                     html += '<div style="margin:10px 0">' + safe(msg.content) + '</div>';
@@ -126,12 +122,11 @@
                 }
             }
             
-            // 显示待审核的回复
             if (replies && replies.length > 0) {
                 for (let i = 0; i < replies.length; i++) {
                     var rep = replies[i];
                     var time = new Date(rep.created_at).toLocaleString();
-                    html += '<div class="reply-card">';
+                    html += '<div class="reply-card" id="reply-' + rep.id + '">';
                     html += '<div><span class="pending">💬 待审核回复</span> <span class="reply-badge">针对留言 #' + rep.message_id + '</span></div>';
                     html += '<div><strong>' + safe(rep.anonymous_name) + '</strong> 于 ' + time + '</div>';
                     html += '<div style="margin:10px 0">' + safe(rep.content) + '</div>';
@@ -194,27 +189,27 @@
         async function approveMessage(id) {
             await supabase.from('messages').update({ approved: true }).eq('id', id);
             alert('✅ 留言已批准');
-            loadPendingAll();
+            loadPendingAll(); // 立即刷新列表
         }
         
         async function rejectMessage(id) {
             if (!confirm('确定永久删除这条留言吗？')) return;
             await supabase.from('messages').delete().eq('id', id);
             alert('❌ 已删除');
-            loadPendingAll();
+            loadPendingAll(); // 立即刷新列表，被删除的项会消失
         }
         
         async function approveReply(id) {
             await supabase.from('replies').update({ approved: true }).eq('id', id);
             alert('✅ 回复已批准');
-            loadPendingAll();
+            loadPendingAll(); // 立即刷新列表
         }
         
         async function rejectReply(id) {
             if (!confirm('确定永久删除这条回复吗？')) return;
             await supabase.from('replies').delete().eq('id', id);
             alert('❌ 已删除');
-            loadPendingAll();
+            loadPendingAll(); // 立即刷新列表，被删除的项会消失
         }
         
         function manualRefresh() {
