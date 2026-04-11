@@ -18,14 +18,14 @@
         .message-card{background:white;border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
         .message-header{display:flex;justify-content:space-between;margin-bottom:10px;color:#666;font-size:14px}
         .message-content{font-size:16px;margin-bottom:15px;line-height:1.5}
-        .reply-item{background:#f5f5f5;border-radius:12px;padding:12px;margin-top:10px;margin-left:20px}
-        .actions{display:flex;gap:10px}
+        .actions{display:flex;gap:10px;margin-top:10px}
         .approve-btn{background:#2c7e6b;color:white;padding:8px 20px;border:none;border-radius:8px;cursor:pointer}
         .reject-btn{background:#c0392b;color:white;padding:8px 20px;border:none;border-radius:8px;cursor:pointer}
         .status{padding:4px 12px;border-radius:20px;font-size:12px}
         .status.pending{background:#f39c12;color:white}
         .status.approved{background:#27ae60;color:white}
         .logout-btn{background:#555;color:white;padding:8px 16px;border:none;border-radius:8px;cursor:pointer;float:right}
+        .refresh-btn{background:#2c7e6b;color:white;padding:8px 16px;border:none;border-radius:8px;cursor:pointer;margin-right:10px;float:right}
     </style>
 </head>
 <body>
@@ -38,12 +38,15 @@
         </div>
     </div>
     <div id="adminPanel" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
             <h1>🌳 树洞审核后台</h1>
-            <button class="logout-btn" onclick="logout()">退出登录</button>
+            <div>
+                <button class="refresh-btn" onclick="refreshAll()">🔄 刷新</button>
+                <button class="logout-btn" onclick="logout()">退出登录</button>
+            </div>
         </div>
         <div class="tabs">
-            <button class="tab active" onclick="showTab('pending')">⏳ 待审核留言</button>
+            <button class="tab active" onclick="showTab('pending')">⏳ 待审核留言 (<span id="pendingCount">0</span>)</button>
             <button class="tab" onclick="showTab('approved')">✅ 已批准留言</button>
         </div>
         <div id="pendingList" class="message-list"></div>
@@ -59,46 +62,26 @@
     
     const ADMIN_PASSWORD = 'treehole2024';
     
-    let currentUser = null;
-    
     async function loadPendingMessages() {
-        const { data: messages } = await supabase
+        console.log('加载待审核留言...');
+        const { data: messages, error } = await supabase
             .from('messages')
             .select('*')
             .eq('approved', false)
             .order('created_at', { ascending: false });
         
-        const { data: replies } = await supabase
-            .from('replies')
-            .select('*')
-            .eq('approved', false)
-            .order('created_at', { ascending: false });
+        if (error) {
+            console.error('查询失败:', error);
+            document.getElementById('pendingList').innerHTML = '<div style="background:white;border-radius:16px;padding:40px;text-align:center;color:red">❌ 查询失败: ' + error.message + '</div>';
+            return;
+        }
         
-        renderPendingMessages(messages || [], replies || []);
-    }
-    
-    async function loadApprovedMessages() {
-        const { data: messages } = await supabase
-            .from('messages')
-            .select('*')
-            .eq('approved', true)
-            .order('created_at', { ascending: false })
-            .limit(100);
+        console.log('找到待审核留言:', messages);
+        document.getElementById('pendingCount').innerText = messages ? messages.length : 0;
         
-        const { data: replies } = await supabase
-            .from('replies')
-            .select('*')
-            .eq('approved', true)
-            .order('created_at', { ascending: false })
-            .limit(100);
-        
-        renderApprovedMessages(messages || [], replies || []);
-    }
-    
-    function renderPendingMessages(messages, replies) {
         const container = document.getElementById('pendingList');
-        if (messages.length === 0 && replies.length === 0) {
-            container.innerHTML = '<div style="background:white;border-radius:16px;padding:40px;text-align:center;color:#999">✨ 暂无待审核内容 ✨</div>';
+        if (!messages || messages.length === 0) {
+            container.innerHTML = '<div style="background:white;border-radius:16px;padding:40px;text-align:center;color:#999">✨ 暂无待审核留言 ✨</div>';
             return;
         }
         
@@ -122,33 +105,20 @@
                 </div>
             `;
         }
-        
-        for (let r of replies) {
-            html += `
-                <div class="message-card">
-                    <div class="message-header">
-                        <span>💬 回复 #${r.id} (针对留言 #${r.message_id})</span>
-                        <span class="status pending">待审核</span>
-                    </div>
-                    <div class="message-header">
-                        <span>👤 ${escapeHtml(r.anonymous_name)}</span>
-                        <span>🕐 ${new Date(r.created_at).toLocaleString()}</span>
-                    </div>
-                    <div class="message-content">${escapeHtml(r.content)}</div>
-                    <div class="actions">
-                        <button class="approve-btn" onclick="approveReply(${r.id})">✅ 批准显示</button>
-                        <button class="reject-btn" onclick="rejectReply(${r.id})">❌ 拒绝删除</button>
-                    </div>
-                </div>
-            `;
-        }
         container.innerHTML = html;
     }
     
-    function renderApprovedMessages(messages, replies) {
+    async function loadApprovedMessages() {
+        const { data: messages } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('approved', true)
+            .order('created_at', { ascending: false })
+            .limit(100);
+        
         const container = document.getElementById('approvedList');
-        if (messages.length === 0 && replies.length === 0) {
-            container.innerHTML = '<div style="background:white;border-radius:16px;padding:40px;text-align:center;color:#999">✨ 暂无已批准内容 ✨</div>';
+        if (!messages || messages.length === 0) {
+            container.innerHTML = '<div style="background:white;border-radius:16px;padding:40px;text-align:center;color:#999">✨ 暂无已批准留言 ✨</div>';
             return;
         }
         
@@ -173,30 +143,22 @@
     
     async function approveMessage(id) {
         await supabase.from('messages').update({ approved: true }).eq('id', id);
-        loadPendingMessages();
-        loadApprovedMessages();
+        refreshAll();
     }
     
     async function rejectMessage(id) {
         await supabase.from('messages').delete().eq('id', id);
-        loadPendingMessages();
+        refreshAll();
     }
     
-    async function approveReply(id) {
-        await supabase.from('replies').update({ approved: true }).eq('id', id);
+    function refreshAll() {
         loadPendingMessages();
         loadApprovedMessages();
-    }
-    
-    async function rejectReply(id) {
-        await supabase.from('replies').delete().eq('id', id);
-        loadPendingMessages();
     }
     
     function login() {
         const pwd = document.getElementById('adminPassword').value;
         if (pwd === ADMIN_PASSWORD) {
-            currentUser = 'admin';
             localStorage.setItem('admin_logged_in', 'true');
             showAdminPanel();
         } else {
@@ -205,7 +167,6 @@
     }
     
     function logout() {
-        currentUser = null;
         localStorage.removeItem('admin_logged_in');
         showLoginPanel();
     }
@@ -213,8 +174,7 @@
     function showAdminPanel() {
         document.getElementById('loginPanel').style.display = 'none';
         document.getElementById('adminPanel').style.display = 'block';
-        loadPendingMessages();
-        loadApprovedMessages();
+        refreshAll();
     }
     
     function showLoginPanel() {
@@ -251,11 +211,10 @@
     
     window.approveMessage = approveMessage;
     window.rejectMessage = rejectMessage;
-    window.approveReply = approveReply;
-    window.rejectReply = rejectReply;
     window.login = login;
     window.logout = logout;
     window.showTab = showTab;
+    window.refreshAll = refreshAll;
 </script>
 </body>
 </html>
